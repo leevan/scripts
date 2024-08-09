@@ -1,0 +1,42 @@
+import numpy as np
+import time
+import tensorflow.compat.v1 as tf
+
+tf.disable_eager_execution()
+tf.debugging.set_log_device_placement(True)
+
+#x = tf.placeholder(tf.float32, shape=(None, None), name='x')
+#y = tf.placeholder(tf.float32, shape=(None, None), name='y')
+
+N = 8192 #4096 #1024
+dtype = tf.bfloat16 #tf.float32
+
+a = tf.Variable(tf.random.normal([N, N], stddev=0.1, dtype=dtype))
+i_a = np.random.normal(0.0, 0.1, (N, N)).astype(np.float32)
+#a = tf.constant(i_a, dtype=dtype)
+
+b = tf.Variable(tf.random.normal([N, N], stddev=0.1, dtype=dtype))
+i_b = np.random.normal(0.0, 0.1, (N, N))
+#b = tf.constant(i_b, dtype=dtype)
+
+#c = tf.matmul(x, y)
+c = tf.matmul(a, b)
+
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    #result = sess.run(c, feed_dict={x:i_a, y:i_b})
+    result = sess.run(c)
+    print(result)
+
+    loops = 10
+    t_s = time.time()
+    for _ in range(loops):
+        #result = sess.run(c, feed_dict={x:i_a, y:i_b})
+        #result = sess.run(c)
+        sess.run(c)
+    t_e = time.time()
+
+
+    duration = (t_e - t_s) / loops
+    print(duration)
+    print(float(2* N * N * N) / duration / 1e9)
